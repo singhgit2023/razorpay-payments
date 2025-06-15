@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Developer Function Guide
 
-## Getting Started
+SubscriptionPlans Component Functions (src/components/SubscriptionPlans.tsx)
 
-First, run the development server:
+- handleSubscribe(planId): Creates Razorpay subscription via API call
+- handleCancelSubscription(): Cancels active subscription
+- isTrialActive(): Checks if user's trial period is still valid
+- calculateDaysLeft(): Returns remaining trial/subscription days
+- formatDate(): Displays dates in readable format
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+API Route Functions
+create-subscription API (src/app/api/create-subscription/route.ts)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- POST handler: Creates Razorpay subscription with 14-day start delay
+- Validates user authentication
+- Returns subscription details for frontend payment processing
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Cancel-subscription API (src/app/api/cancel-subscription/route.ts)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- POST handler: Cancels Razorpay subscription immediately
+- Updates user's subscription status in Firestore
+- Returns cancellation confirmation
 
-## Learn More
+Key Variables and Constants
+- SUBSCRIPTION_PLANS: Object containing plan details (ID, name, price, features)
+- User subscription statuses: "trial", "active", "cancelled"
+- Trial duration: 14 days (calculated from signup date)
+- Payment currency: INR (Indian Rupees)
 
-To learn more about Next.js, take a look at the following resources:
+Data Flow
+1. User signup → AuthContext.signUp() → Firestore user creation with trial
+2. Plan selection → handleSubscribe() → API call → Razorpay payment
+3. Payment success → updateUserSubscription() → Firestore update
+4. Subscription management → Component state updates → UI changes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Environment Variables Required
+- Firebase config (6 variables)
+- Razorpay keys (3 variables)
